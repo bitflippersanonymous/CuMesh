@@ -55,8 +55,9 @@ CuMesh::~CuMesh() {
     atlas_chart2edge_cnt.free();
     atlas_chart2edge_offset.free();
 
-    temp_storage.free();
-    cub_temp_storage.free();
+    num_conn_comps = 0;
+    num_bound_conn_comps = 0;
+    num_bound_loops = 0;
 }
 
 int CuMesh::num_vertices() const {
@@ -137,6 +138,9 @@ void CuMesh::clear_cache() {
 
     temp_storage.free();
     cub_temp_storage.free();
+    num_conn_comps = 0;
+    num_bound_conn_comps = 0;
+    num_bound_loops = 0;
 }
 
 } // namespace cumesh

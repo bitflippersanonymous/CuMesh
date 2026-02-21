@@ -370,6 +370,26 @@ static __global__ void connect_new_vertices_kernel(
 }
 
 
+static __global__ void sum_loop_boundary_midpoints_kernel(
+    const Vec3f* loop_boundary_midpoints,
+    const int* loop_boundaries_offset,
+    const size_t L,
+    Vec3f* new_vertices
+) {
+    const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid >= L) return;
+
+    int start = loop_boundaries_offset[tid];
+    int end = loop_boundaries_offset[tid+1];
+    
+    Vec3f sum_val(0.0f, 0.0f, 0.0f);
+    for (int i = start; i < end; ++i) {
+        sum_val += loop_boundary_midpoints[i];
+    }
+    new_vertices[tid] = sum_val;
+}
+
+
 struct LessThanOp {
     __device__ bool operator()(float a, float b) const {
         return a < b;
@@ -581,22 +601,13 @@ void CuMesh::fill_holes(float max_hole_perimeter) {
     CUDA_CHECK(cudaGetLastError());
     Vec3f* cu_new_vertices;
     CUDA_CHECK(cudaMalloc(&cu_new_vertices, new_num_bound_loops * sizeof(Vec3f)));
-    temp_storage_bytes = 0;
-    CUDA_CHECK(cub::DeviceSegmentedReduce::Sum(
-        nullptr, temp_storage_bytes,
-        cu_new_loop_bound_centers, cu_new_vertices,
-        new_num_bound_loops,
+    sum_loop_boundary_midpoints_kernel<<<(new_num_bound_loops+BLOCK_SIZE-1)/BLOCK_SIZE, BLOCK_SIZE>>>(
+        cu_new_loop_bound_centers,
         cu_new_loop_boundaries_offset,
-        cu_new_loop_boundaries_offset + 1
-    ));
-    this->cub_temp_storage.resize(temp_storage_bytes);
-    CUDA_CHECK(cub::DeviceSegmentedReduce::Sum(
-        this->cub_temp_storage.ptr, temp_storage_bytes,
-        cu_new_loop_bound_centers, cu_new_vertices,
         new_num_bound_loops,
-        cu_new_loop_boundaries_offset,
-        cu_new_loop_boundaries_offset + 1
-    ));
+        cu_new_vertices
+    );
+    CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaFree(cu_new_loop_bound_centers));
     CUDA_CHECK(cudaFree(cu_new_loop_boundaries_offset));
     inplace_div_kernel<<<(new_num_bound_loops+BLOCK_SIZE-1)/BLOCK_SIZE, BLOCK_SIZE>>>(
