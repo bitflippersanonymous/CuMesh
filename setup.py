@@ -52,8 +52,8 @@ setup(
                 "src/ext.cpp",
             ],
             extra_compile_args={
-                "cxx": ["-O3", "-std=c++17"],
-                "nvcc": ["-O3","-std=c++17"] + cc_flag,
+                "cxx": ["-O3", "-std=c++20"],
+                "nvcc": ["-O3","-std=c++20"] + cc_flag,
             }
         ),
         CUDAExtension(
@@ -68,8 +68,8 @@ setup(
                 os.path.join(ROOT, "third_party/cubvh/third_party/eigen"),
             ],
             extra_compile_args={
-                "cxx": ["-O3", "-std=c++17"],
-                "nvcc": ["-O3","-std=c++17"] + cc_flag + [
+                "cxx": ["-O3", "-std=c++20"],
+                "nvcc": ["-O3","-std=c++20"] + cc_flag + [
                     "--extended-lambda",
                     "--expt-relaxed-constexpr",
                     # The following definitions must be undefined
@@ -87,7 +87,7 @@ setup(
                 'third_party/xatlas/binding.cpp',
             ],
             extra_compile_args={
-                "cxx": ["-O3", "-std=c++17"],
+                "cxx": ["-O3", "-std=c++20"],
             }
         ),
     ],
