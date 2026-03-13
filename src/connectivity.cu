@@ -71,13 +71,13 @@ void CuMesh::get_vertex_face_adjacency() {
     size_t temp_storage_bytes = 0;
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         nullptr, temp_storage_bytes,
-        this->vert2face_cnt.ptr, this->vert2face_offset.ptr,
+        this->vert2face_cnt.ptr, this->vert2face_cnt.ptr,
         V + 1
     ));
     this->cub_temp_storage.resize(temp_storage_bytes);
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         this->cub_temp_storage.ptr, temp_storage_bytes,
-        this->vert2face_cnt.ptr, this->vert2face_offset.ptr,
+        this->vert2face_cnt.ptr, this->vert2face_cnt.ptr,
         V + 1
     ));
     this->vert2face.resize(F*3);
@@ -231,13 +231,13 @@ void CuMesh::get_edge_face_adjacency() {
     size_t temp_storage_bytes = 0;
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         nullptr, temp_storage_bytes,
-        this->edge2face_cnt.ptr, this->edge2face_offset.ptr,
+        this->edge2face_cnt.ptr, this->edge2face_cnt.ptr,
         E + 1
     ));
     this->cub_temp_storage.resize(temp_storage_bytes);
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         this->cub_temp_storage.ptr, temp_storage_bytes,
-        this->edge2face_cnt.ptr, this->edge2face_offset.ptr,
+        this->edge2face_cnt.ptr, this->edge2face_cnt.ptr,
         E + 1
     ));
 
@@ -1074,13 +1074,13 @@ void CuMesh::get_boundary_loops() {
     temp_storage_bytes = 0;
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         nullptr, temp_storage_bytes,
-        this->loop_boundaries_offset.ptr,
+        this->loop_boundaries_offset.ptr, this->loop_boundaries_offset.ptr,
         this->num_bound_loops + 1
     ));
     this->cub_temp_storage.resize(temp_storage_bytes);
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         this->cub_temp_storage.ptr, temp_storage_bytes,
-        this->loop_boundaries_offset.ptr,
+        this->loop_boundaries_offset.ptr, this->loop_boundaries_offset.ptr,
         this->num_bound_loops + 1
     ));
 }

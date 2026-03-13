@@ -152,12 +152,12 @@ void CuMesh::remove_unreferenced_vertices() {
     size_t temp_storage_bytes = 0;
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         nullptr, temp_storage_bytes,
-        cu_vertex_is_referenced, V+1
+        cu_vertex_is_referenced, cu_vertex_is_referenced, V+1
     ));
     this->cub_temp_storage.resize(temp_storage_bytes);
     CUDA_CHECK(cub::DeviceScan::ExclusiveSum(
         this->cub_temp_storage.ptr, temp_storage_bytes,
-        cu_vertex_is_referenced, V+1
+        cu_vertex_is_referenced, cu_vertex_is_referenced, V+1
     ));
     int new_num_vertices;
     CUDA_CHECK(cudaMemcpy(&new_num_vertices, cu_vertex_is_referenced + V, sizeof(int), cudaMemcpyDeviceToHost));
